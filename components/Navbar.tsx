@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { User, getCurrentUser, logout } from '@/lib/auth';
+import { User} from '@/types';
+import { getCurrentUser, logout } from '@/lib/auth';
 import { Menu, X, Shield, LogOut, Settings, Home } from 'lucide-react';
 
 export default function Navbar() {
