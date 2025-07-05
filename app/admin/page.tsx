@@ -23,13 +23,18 @@ import Link from 'next/link';
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [analytics, setAnalytics] = useState<Analytics>(mockAnalytics);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    setUser(getCurrentUser());
+    setMounted(true);
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     if (!user) {
       router.push('/login');
       return;
@@ -39,10 +44,14 @@ export default function AdminDashboard() {
       router.push('/');
       return;
     }
-  }, [user, router]);
+  }, [user, router, mounted]);
 
-  if (!user) {
-    return <div>Loading...</div>;
+  if (!mounted || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   const stats = [

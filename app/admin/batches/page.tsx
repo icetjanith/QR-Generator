@@ -17,13 +17,18 @@ export default function BatchesPage() {
   const [batches, setBatches] = useState<ProductBatch[]>(mockBatches);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBatches, setFilteredBatches] = useState<ProductBatch[]>(batches);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    setUser(getCurrentUser());
+    setMounted(true);
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     if (!user) {
       router.push('/login');
       return;
@@ -33,7 +38,7 @@ export default function BatchesPage() {
       router.push('/');
       return;
     }
-  }, [user, router]);
+  }, [user, router, mounted]);
 
   useEffect(() => {
     const filtered = batches.filter(batch =>
@@ -42,8 +47,12 @@ export default function BatchesPage() {
     setFilteredBatches(filtered);
   }, [searchTerm, batches]);
 
-  if (!user) {
-    return <div>Loading...</div>;
+  if (!mounted || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   const getStatusColor = (status: string) => {

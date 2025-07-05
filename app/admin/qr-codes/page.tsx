@@ -42,6 +42,7 @@ export default function QRCodesPage() {
   const [generatingQR, setGeneratingQR] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [previewUnit, setPreviewUnit] = useState<ProductUnit | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [newQRData, setNewQRData] = useState({
     productName: '',
     brand: '',
@@ -55,7 +56,9 @@ export default function QRCodesPage() {
   const router = useRouter();
 
   useEffect(() => {
-    setUser(getCurrentUser());
+    setMounted(true);
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
   }, []);
 
   const getProductName = useCallback((productId: string) => {
@@ -64,6 +67,8 @@ export default function QRCodesPage() {
   }, [products]);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     if (!user) {
       router.push('/login');
       return;
@@ -73,7 +78,7 @@ export default function QRCodesPage() {
       router.push('/');
       return;
     }
-  }, [user, router]);
+  }, [user, router, mounted]);
 
   useEffect(() => {
     let filtered = batches;
@@ -92,8 +97,12 @@ export default function QRCodesPage() {
     setFilteredBatches(filtered);
   }, [searchTerm, statusFilter, batches, getProductName]);
 
-  if (!user) {
-    return <div>Loading...</div>;
+  if (!mounted || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   const getStatusColor = (status: string) => {
