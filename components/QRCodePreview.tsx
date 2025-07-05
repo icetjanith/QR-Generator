@@ -197,7 +197,7 @@ export default function QRCodePreview({ unit, productName, onClose }: QRCodePrev
             Close
           </Button>
         )}
-      </div>
+      </CardContent>
     </Card>
   );
 }
