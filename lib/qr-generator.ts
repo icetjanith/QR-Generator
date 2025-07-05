@@ -28,16 +28,16 @@ export function generateQRCodeUrl(token: string): string {
 }
 
 export async function generateProductUnits(
-  productId: string,
-  batchId: string,
-  quantity: number
+    productId: string,
+    batchId: string,
+    quantity: number
 ): Promise<ProductUnit[]> {
   const units: ProductUnit[] = [];
-  
+
   for (let i = 0; i < quantity; i++) {
     const qrToken = generateQRToken();
     const serialKey = generateSerialKey();
-    
+
     units.push({
       id: `unit_${Date.now()}_${i}`,
       productId,
@@ -50,7 +50,7 @@ export async function generateProductUnits(
       updatedAt: new Date(),
     });
   }
-  
+
   return units;
 }
 
@@ -63,20 +63,20 @@ export function layoutStickersForA4(units: ProductUnit[]): any[] {
   // Layout 25 stickers per A4 page (5 columns × 5 rows)
   const pages = [];
   const stickersPerPage = 25;
-  
+
   for (let i = 0; i < units.length; i += stickersPerPage) {
     const pageUnits = units.slice(i, i + stickersPerPage);
     const rows = [];
-    
+
     for (let j = 0; j < pageUnits.length; j += 5) {
       rows.push(pageUnits.slice(j, j + 5));
     }
-    
+
     pages.push({
       pageNumber: Math.floor(i / stickersPerPage) + 1,
       rows,
     });
   }
-  
+
   return pages;
 }
