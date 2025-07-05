@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { getCurrentUser, hasRole } from '@/lib/auth';
 import { mockBatches, mockProducts, mockUnits } from '@/lib/mock-data';
 import { ProductBatch, Product, ProductUnit } from '@/types';
-import { generateProductUnits, generatePrintablePDF, layoutStickersForA4 } from '@/lib/qr-generator';
+import { generateProductUnits, generatePrintablePDF, layoutStickersForA4, generateSingleQRCode } from '@/lib/qr-generator';
 import { formatDateToYYYYMMDD } from '@/lib/utils';
 import { 
   QrCode, 
@@ -27,6 +27,7 @@ import {
   X
 } from 'lucide-react';
 import Link from 'next/link';
+import QRCodePreview from '@/components/QRCodePreview';
 
 export default function QRCodesPage() {
   const [user, setUser] = useState(getCurrentUser());
@@ -40,6 +41,7 @@ export default function QRCodesPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [generatingQR, setGeneratingQR] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [previewUnit, setPreviewUnit] = useState<ProductUnit | null>(null);
   const [newQRData, setNewQRData] = useState({
     productName: '',
     brand: '',
@@ -128,10 +130,7 @@ export default function QRCodesPage() {
     setGeneratingQR(batch.id);
     
     try {
-      // Simulate QR code generation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const newUnits = generateProductUnits(batch.productId, batch.id, batch.quantity);
+      const newUnits = await generateProductUnits(batch.productId, batch.id, batch.quantity);
       setUnits(prev => [...prev, ...newUnits]);
       
       // Update batch status
@@ -141,22 +140,26 @@ export default function QRCodesPage() {
       
       alert(`Generated ${batch.quantity} QR codes for batch ${batch.batchNumber}`);
     } catch (error) {
+      console.error('QR generation error:', error);
       alert('Failed to generate QR codes. Please try again.');
     } finally {
       setGeneratingQR(null);
     }
   };
 
-  const handleDownloadPDF = (batch: ProductBatch) => {
+  const handleDownloadPDF = async (batch: ProductBatch) => {
     const batchUnits = getBatchUnits(batch.id);
     if (batchUnits.length === 0) {
       alert('No QR codes generated for this batch yet.');
       return;
     }
     
-    const pdfUrl = generatePrintablePDF(batchUnits);
-    // In a real app, this would trigger a download
-    alert(`PDF generated for batch ${batch.batchNumber}. Download URL: ${pdfUrl}`);
+    try {
+      await generatePrintablePDF(batchUnits, batch.batchNumber);
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
   };
 
   const handleCreateNewQR = async () => {
@@ -207,7 +210,7 @@ export default function QRCodesPage() {
       };
       
       // Generate single QR code unit
-      const newUnits = generateProductUnits(newProduct.id, newBatch.id, 1);
+      const newUnits = await generateProductUnits(newProduct.id, newBatch.id, 1);
       
       // Update state
       setProducts(prev => [...prev, newProduct]);
@@ -226,8 +229,10 @@ export default function QRCodesPage() {
       });
       setShowCreateForm(false);
       
-      alert(`QR Code generated successfully!\nSerial Key: ${newUnits[0].serialKey}\nQR Token: ${newUnits[0].qrToken}`);
+      // Show QR code preview
+      setPreviewUnit(newUnits[0]);
     } catch (error) {
+      console.error('QR generation error:', error);
       alert('Failed to generate QR code. Please try again.');
     } finally {
       setGeneratingNewQR(false);
@@ -679,6 +684,17 @@ export default function QRCodesPage() {
 
         <PreviewModal />
         <CreateQRModal />
+        
+        {/* QR Code Preview Modal */}
+        {previewUnit && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <QRCodePreview
+              unit={previewUnit}
+              productName={newQRData.productName}
+              onClose={() => setPreviewUnit(null)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
