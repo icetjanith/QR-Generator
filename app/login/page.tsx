@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { authenticateUser, setCurrentUser } from '@/lib/auth';
+import { authenticateUser, setCurrentUser, getCurrentUser } from '@/lib/auth';
 import { Shield, Mail, Lock, AlertCircle } from 'lucide-react';
 
 export default function Login() {
@@ -13,7 +13,17 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+    // Check if user is already logged in
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      router.push('/admin');
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +34,10 @@ export default function Login() {
       const user = authenticateUser(email, password);
       if (user) {
         setCurrentUser(user);
-        router.push('/admin');
+        // Small delay to ensure localStorage is set
+        setTimeout(() => {
+          router.push('/admin');
+        }, 100);
       } else {
         setError('Invalid email or password');
       }
@@ -34,6 +47,15 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  // Don't render until mounted to avoid hydration issues
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -63,6 +85,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -78,12 +101,13 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
 
             {error && (
-              <div className="flex items-center space-x-2 text-red-600 text-sm">
+              <div className="flex items-center space-x-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg">
                 <AlertCircle className="h-4 w-4" />
                 <span>{error}</span>
               </div>
@@ -94,7 +118,14 @@ export default function Login() {
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Signing in...</span>
+                </div>
+              ) : (
+                'Sign In'
+              )}
             </Button>
           </form>
 

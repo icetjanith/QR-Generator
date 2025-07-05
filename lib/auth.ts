@@ -42,12 +42,16 @@ export function getCurrentUser(): User | null {
 export function setCurrentUser(user: User): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem('currentUser', JSON.stringify(user));
+    // Trigger storage event for other components
+    window.dispatchEvent(new Event('storage'));
   }
 }
 
 export function logout(): void {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('currentUser');
+    // Trigger storage event for other components
+    window.dispatchEvent(new Event('storage'));
   }
 }
 

@@ -11,18 +11,45 @@ import { Menu, X, Shield, LogOut, Settings, Home } from 'lucide-react';
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    setMounted(true);
     setUser(getCurrentUser());
   }, []);
 
+  // Listen for storage changes to update user state
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUser(getCurrentUser());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
   const handleLogout = () => {
     logout();
     setUser(null);
     router.push('/');
   };
 
+  // Don't render until mounted to avoid hydration issues
+  if (!mounted) {
+    return (
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="flex items-center space-x-2">
+              <Shield className="h-8 w-8 text-blue-600" />
+              <span className="text-xl font-bold text-gray-900">WarrantyTech</span>
+            </Link>
+            <div className="w-20"></div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/admin', label: 'Admin', icon: Settings, requiresAuth: true },
