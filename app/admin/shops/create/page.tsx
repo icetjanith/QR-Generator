@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { getCurrentUser, hasRole } from '@/lib/auth';
+import { apiClient } from '@/lib/api-client';
 import { User } from '@/types';
 import { ArrowLeft, Store, Save, X } from 'lucide-react';
 import Link from 'next/link';
@@ -121,33 +122,16 @@ export default function CreateShopPage() {
     setLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // In a real app, this would create the shop and owner account
-      console.log('Creating shop:', {
-        shop: {
-          name: formData.shopName,
-          address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}, ${formData.country}`,
-          phone: formData.phone,
-          email: formData.ownerEmail,
-          ownerName: formData.ownerName,
-          status: 'active',
-        },
-        owner: {
-          name: formData.ownerName,
-          email: formData.ownerEmail,
-          password: formData.ownerPassword,
-          role: 'shop_owner',
-        }
-      });
+      // Create shop and owner account via API
+      await apiClient.createShop(formData);
 
       // Show success message and redirect
       alert('Shop and owner account created successfully!');
       router.push('/admin/shops');
     } catch (error) {
       console.error('Shop creation error:', error);
-      alert('Failed to create shop. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create shop. Please try again.';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
