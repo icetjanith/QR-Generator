@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,7 +75,7 @@ export default function ProductPage() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600">
-              The QR code you scanned doesn't match any product in our system.
+              The QR code you scanned doesn&apos;t match any product in our system.
             </p>
           </CardContent>
         </Card>
@@ -126,11 +127,14 @@ export default function ProductPage() {
               </CardHeader>
               <CardContent>
                 {product.imageUrl && (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                  />
+                    <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        width={600}         // adjust width as needed
+                        height={192}        // adjust height to maintain aspect ratio (h-48 = 12rem = 192px)
+                        className="rounded-lg mb-4"
+                        style={{ objectFit: 'cover' }}
+                    />
                 )}
                 <p className="text-gray-600 mb-4">{product.description}</p>
                 
@@ -243,7 +247,7 @@ export default function ProductPage() {
                       Warranty Not Activated
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      This product's warranty has not been activated yet. Contact your retailer to activate the warranty.
+                      This product&apos;s warranty has not been activated yet. Contact your retailer to activate the warranty.
                     </p>
                     <Button onClick={() => setShowActivationForm(true)}>
                       Activate Warranty

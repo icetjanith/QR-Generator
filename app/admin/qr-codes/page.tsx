@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,11 @@ export default function QRCodesPage() {
   const [generatingNewQR, setGeneratingNewQR] = useState(false);
   const router = useRouter();
 
+  const getProductName = useCallback((productId: string) => {
+    const product = products.find(p => p.id === productId);
+    return product ? product.name : 'Unknown';
+  }, [products]);
+
   useEffect(() => {
     if (!user) {
       router.push('/login');
@@ -79,16 +84,11 @@ export default function QRCodesPage() {
     }
 
     setFilteredBatches(filtered);
-  }, [searchTerm, statusFilter, batches]);
+  }, [searchTerm, statusFilter, batches, getProductName]);
 
   if (!user) {
     return <div>Loading...</div>;
   }
-
-  const getProductName = (productId: string) => {
-    const product = products.find(p => p.id === productId);
-    return product?.name || 'Unknown Product';
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -407,7 +407,7 @@ export default function QRCodesPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Format: "Key: Value" (one per line)
+                Format: &quot;Key: Value&quot; (one per line)
               </p>
             </div>
             

@@ -137,7 +137,7 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600 mt-2">
-            Welcome back, {user.name}. Here's what's happening with your warranty system.
+            Welcome back, {user.name}. Here&rsquo;s what&rsquo;s happening with your warranty system.
           </p>
         </div>
 

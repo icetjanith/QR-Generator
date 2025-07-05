@@ -10,6 +10,7 @@ import { mockProducts } from '@/lib/mock-data';
 import { Product } from '@/types';
 import { Plus, Search, Edit, Trash2, Package, Clock } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ProductsPage() {
   const [user, setUser] = useState(getCurrentUser());
@@ -97,12 +98,16 @@ export default function ProductsPage() {
               </CardHeader>
               <CardContent>
                 {product.imageUrl && (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                  />
+                    <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        width={600}
+                        height={300}
+                        className="w-full h-48 object-cover rounded-lg mb-4"
+                        style={{ objectFit: 'cover' }}
+                    />
                 )}
+
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">
                   {product.description}
                 </p>
