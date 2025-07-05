@@ -53,6 +53,7 @@ export default function Navbar() {
   const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/admin', label: 'Admin', icon: Settings, requiresAuth: true },
+    { href: '/admin/shops', label: 'Shops', icon: Users, requiresAuth: true, adminOnly: true },
   ];
 
   return (
@@ -68,6 +69,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => {
               if (item.requiresAuth && !user) return null;
+              if (item.adminOnly && (!user || user.role !== 'admin')) return null;
               return (
                 <Link
                   key={item.href}
@@ -120,6 +122,7 @@ export default function Navbar() {
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
               {navItems.map((item) => {
                 if (item.requiresAuth && !user) return null;
+                if (item.adminOnly && (!user || user.role !== 'admin')) return null;
                 return (
                   <Link
                     key={item.href}

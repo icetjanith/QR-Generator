@@ -277,6 +277,20 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </Link>
+
+          <Link href="/admin/shops">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="h-5 w-5" />
+                  <span>Shops</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Manage retail shops and owner accounts</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </div>
     </div>
