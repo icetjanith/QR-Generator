@@ -91,15 +91,16 @@ export interface SupportTicket {
 }
 
 export interface Shop {
-  id: string;
+  id?: string;
+  _id?: string;
   name: string;
   address: string;
   phone: string;
   email: string;
   ownerName: string;
   status: 'active' | 'inactive' | 'suspended';
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface Analytics {

@@ -105,6 +105,41 @@ class ApiClient {
   async getAnalytics() {
     return this.request('/analytics');
   }
+
+  // Shops
+  async getShops(params?: { search?: string; status?: string; page?: number; limit?: number }) {
+    const searchParams = new URLSearchParams();
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    
+    return this.request(`/shops?${searchParams}`);
+  }
+
+  async createShop(shopData: any) {
+    return this.request('/shops', {
+      method: 'POST',
+      body: JSON.stringify(shopData),
+    });
+  }
+
+  async getShop(shopId: string) {
+    return this.request(`/shops/${shopId}`);
+  }
+
+  async updateShop(shopId: string, updateData: any) {
+    return this.request(`/shops/${shopId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    });
+  }
+
+  async deleteShop(shopId: string) {
+    return this.request(`/shops/${shopId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

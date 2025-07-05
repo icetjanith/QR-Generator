@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getCurrentUser, hasRole } from '@/lib/auth';
-import { mockShops } from '@/lib/mock-data';
+import { apiClient } from '@/lib/api-client';
 import { Shop, User } from '@/types';
 import { Plus, Search, Edit, Trash2, Store, MapPin, Mail, Phone, User as UserIcon, Eye, MoreVertical } from 'lucide-react';
 import Link from 'next/link';
@@ -19,10 +19,11 @@ import {
 
 export default function ShopsPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [shops, setShops] = useState<Shop[]>(mockShops);
+  const [shops, setShops] = useState<Shop[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredShops, setFilteredShops] = useState<Shop[]>(shops);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -46,6 +47,24 @@ export default function ShopsPage() {
   }, [user, router, mounted]);
 
   useEffect(() => {
+    if (!mounted || !user) return;
+    
+    fetchShops();
+  }, [mounted, user]);
+
+  const fetchShops = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.getShops();
+      setShops(response.shops || []);
+    } catch (error) {
+      console.error('Failed to fetch shops:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     const filtered = shops.filter(shop =>
       shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       shop.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -55,7 +74,7 @@ export default function ShopsPage() {
     setFilteredShops(filtered);
   }, [searchTerm, shops]);
 
-  if (!mounted || !user) {
+  if (!mounted || !user || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -77,16 +96,30 @@ export default function ShopsPage() {
   };
 
   const handleStatusChange = (shopId: string, newStatus: 'active' | 'inactive' | 'suspended') => {
-    setShops(prev => prev.map(shop => 
-      shop.id === shopId 
-        ? { ...shop, status: newStatus, updatedAt: new Date() }
-        : shop
-    ));
+    apiClient.updateShop(shopId, { status: newStatus })
+      .then(() => {
+        setShops(prev => prev.map(shop => 
+          shop.id === shopId 
+            ? { ...shop, status: newStatus, updatedAt: new Date() }
+            : shop
+        ));
+      })
+      .catch(error => {
+        console.error('Failed to update shop status:', error);
+        alert('Failed to update shop status. Please try again.');
+      });
   };
 
   const handleDeleteShop = (shopId: string) => {
     if (confirm('Are you sure you want to delete this shop? This action cannot be undone.')) {
-      setShops(prev => prev.filter(shop => shop.id !== shopId));
+      apiClient.deleteShop(shopId)
+        .then(() => {
+          setShops(prev => prev.filter(shop => shop.id !== shopId));
+        })
+        .catch(error => {
+          console.error('Failed to delete shop:', error);
+          alert('Failed to delete shop. Please try again.');
+        });
     }
   };
 
@@ -267,7 +300,7 @@ export default function ShopsPage() {
                 <div className="mt-6 pt-4 border-t">
                   <div className="flex justify-between items-center text-xs text-gray-500">
                     <span>Created: {shop.createdAt.toLocaleDateString()}</span>
-                    <span>Updated: {shop.updatedAt.toLocaleDateString()}</span>
+                    <span>Updated: {new Date(shop.updatedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               </CardContent>
