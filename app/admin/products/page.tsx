@@ -6,11 +6,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getCurrentUser, hasRole } from '@/lib/auth';
+import { apiClient } from '@/lib/api-client';
 import { mockProducts } from '@/lib/mock-data';
 import { Product } from '@/types';
-import { Plus, Search, Edit, Trash2, Package, Clock } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, Clock, Eye, MoreVertical } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function ProductsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -58,6 +65,19 @@ export default function ProductsPage() {
       setProducts(mockProducts);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string, productName: string) => {
+    if (confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+      try {
+        await apiClient.deleteProduct(productId);
+        setProducts(prev => prev.filter(product => product.id !== productId));
+        alert('Product deleted successfully!');
+      } catch (error) {
+        console.error('Failed to delete product:', error);
+        alert('Failed to delete product. Please try again.');
+      }
     }
   };
 
@@ -122,14 +142,30 @@ export default function ProductsPage() {
                       {product.brand} • {product.category}
                     </CardDescription>
                   </div>
-                  <div className="flex space-x-1">
-                    <Button variant="ghost" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => router.push(`/admin/products/${product.id}`)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push(`/admin/products/${product.id}/edit`)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Product
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteProduct(product.id, product.name)}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Product
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </CardHeader>
               <CardContent>
@@ -164,13 +200,22 @@ export default function ProductsPage() {
                 <div className="mt-4 pt-4 border-t">
                   <div className="flex justify-between items-center">
                     <span className="text-xs text-gray-500">
-                      Created {product.createdAt.toLocaleDateString()}
+                      Created {new Date(product.createdAt).toLocaleDateString()}
                     </span>
-                    <Link href={`/admin/products/${product.id}`}>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                    </Link>
+                    <div className="flex space-x-2">
+                      <Link href={`/admin/products/${product.id}`}>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                      </Link>
+                      <Link href={`/admin/products/${product.id}/edit`}>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </CardContent>
