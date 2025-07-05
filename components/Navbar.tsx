@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { User} from '@/types';
 import { getCurrentUser, logout } from '@/lib/auth';
-import { Menu, X, Shield, LogOut, Settings, Home } from 'lucide-react';
+import { Menu, X, Shield, LogOut, Settings, Home, Users } from 'lucide-react';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
