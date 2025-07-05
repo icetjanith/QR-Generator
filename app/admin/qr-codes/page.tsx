@@ -271,7 +271,7 @@ export default function QRCodesPage() {
               <div key={pageIndex} className="border rounded-lg p-4">
                 <h3 className="font-medium mb-4">Page {page.pageNumber}</h3>
                 <div className="grid grid-cols-10 gap-2">
-                  {page.rows.map((row, rowIndex) => 
+                  {page.rows.map((row: any[], rowIndex: number) =>
                     row.map((unit, colIndex) => (
                       <div key={`${rowIndex}-${colIndex}`} className="border rounded p-2 text-center">
                         <div className="w-12 h-12 bg-gray-200 mx-auto mb-1 flex items-center justify-center">
