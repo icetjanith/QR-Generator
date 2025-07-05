@@ -10,6 +10,7 @@ import { getCurrentUser, hasRole } from '@/lib/auth';
 import { mockBatches, mockProducts, mockUnits } from '@/lib/mock-data';
 import { ProductBatch, Product, ProductUnit } from '@/types';
 import { generateProductUnits, generatePrintablePDF, layoutStickersForA4 } from '@/lib/qr-generator';
+import { generatePrintablePDF as generatePDF } from '@/lib/pdf-generator';
 import { formatDateToYYYYMMDD } from '@/lib/utils';
 import { 
   QrCode, 
@@ -168,18 +169,8 @@ export default function QRCodesPage() {
     }
     
     try {
-      const pdfUrl = generatePrintablePDF(batchUnits, batch.batchNumber);
-      
-      // Create download link
-      const link = document.createElement('a');
-      link.href = pdfUrl;
-      link.download = `QR_Codes_${batch.batchNumber}.pdf`;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      alert(`PDF download initiated for batch ${batch.batchNumber}`);
+      const productName = getProductName(batch.productId);
+      await generatePDF(batchUnits, batch.batchNumber, productName);
     } catch (error) {
       console.error('PDF generation error:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -278,7 +269,8 @@ export default function QRCodesPage() {
     if (!selectedBatch || !showPreview) return null;
     
     const batchUnits = getBatchUnits(selectedBatch.id);
-    const pages = layoutStickersForA4(batchUnits);
+    const { layoutStickersForA4: layoutStickers } = require('@/lib/pdf-generator');
+    const pages = layoutStickers(batchUnits);
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -299,16 +291,16 @@ export default function QRCodesPage() {
             {pages.map((page, pageIndex) => (
               <div key={pageIndex} className="border rounded-lg p-4">
                 <h3 className="font-medium mb-4">Page {page.pageNumber}</h3>
-                <div className="grid grid-cols-10 gap-2">
+                <div className="grid grid-cols-5 gap-2">
                   {page.rows.map((row: any[], rowIndex: number) =>
-                    row.map((unit, colIndex) => (
+                    row.map((unit, colIndex) => unit ? (
                       <div key={`${rowIndex}-${colIndex}`} className="border rounded p-2 text-center">
                         <div className="w-12 h-12 bg-gray-200 mx-auto mb-1 flex items-center justify-center">
                           <QrCode className="h-8 w-8 text-gray-600" />
                         </div>
                         <div className="text-xs font-mono">{unit.serialKey}</div>
                       </div>
-                    ))
+                    ) : null)
                   )}
                 </div>
               </div>
@@ -637,7 +629,7 @@ export default function QRCodesPage() {
                       >
                         {generatingQR === batch.id ? (
                           <>
-                            <Clock className="h-4 w-4 mr-2 animate-spin" />
+                        View Layout ({Math.ceil(batchUnits.length / 35)} pages)
                             Generating...
                           </>
                         ) : (

@@ -53,30 +53,3 @@ export function generateProductUnits(
 
   return units;
 }
-
-export function generatePrintablePDF(units: ProductUnit[], batchNumber: string): string {
-  // Return a mock PDF URL for now - in production this would generate actual PDF
-  return `/api/generate-pdf/${batchNumber}`;
-}
-
-export function layoutStickersForA4(units: ProductUnit[]): any[] {
-  // Layout 25 stickers per A4 page (5 columns × 5 rows)
-  const pages = [];
-  const stickersPerPage = 25;
-
-  for (let i = 0; i < units.length; i += stickersPerPage) {
-    const pageUnits = units.slice(i, i + stickersPerPage);
-    const rows = [];
-
-    for (let j = 0; j < pageUnits.length; j += 5) {
-      rows.push(pageUnits.slice(j, j + 5));
-    }
-
-    pages.push({
-      pageNumber: Math.floor(i / stickersPerPage) + 1,
-      rows,
-    });
-  }
-
-  return pages;
-}
