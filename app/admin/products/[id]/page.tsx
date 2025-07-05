@@ -103,9 +103,7 @@ export default function ProductDetailsPage() {
             <CardTitle>Product Not Found</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-4">
-              The product you're looking for doesn't exist or has been removed.
-            </p>
+            <p>The product you&#39;re trying to view doesn&#39;t exist or has been removed.</p>
             <Link href="/admin/products">
               <Button>
                 <ArrowLeft className="h-4 w-4 mr-2" />

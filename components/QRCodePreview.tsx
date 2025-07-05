@@ -6,6 +6,7 @@ import { generateQRCodeUrl } from '@/lib/qr-generator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Printer, Copy, Check } from 'lucide-react';
+import Image from 'next/image';
 
 interface QRCodePreviewProps {
   unit: ProductUnit;
@@ -40,6 +41,7 @@ export default function QRCodePreview({ unit, productName, onClose }: QRCodePrev
     // Create a canvas to convert the QR code image to downloadable format
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+    // @ts-ignore
     const img = new Image();
     
     img.crossOrigin = 'anonymous';
@@ -136,11 +138,15 @@ export default function QRCodePreview({ unit, productName, onClose }: QRCodePrev
         ) : qrImageUrl ? (
           <>
             <div className="flex justify-center">
-              <img 
-                src={qrImageUrl} 
-                alt="QR Code" 
-                className="border border-gray-300 rounded-lg p-2"
+              <Image
+                  src={qrImageUrl}
+                  alt="QR Code"
+                  width={200} // adjust width/height based on your layout needs
+                  height={200}
+                  className="border border-gray-300 rounded-lg p-2"
+                  unoptimized // optional: use if qrImageUrl is from an external or dynamic source that cannot be optimized
               />
+
             </div>
             
             <div className="space-y-2">

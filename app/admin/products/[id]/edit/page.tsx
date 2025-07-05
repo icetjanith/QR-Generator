@@ -62,40 +62,42 @@ export default function EditProductPage() {
 
   useEffect(() => {
     if (!mounted || !user || !productId) return;
-    
-    fetchProduct();
-  }, [mounted, user, productId]);
 
-  const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      const response = await apiClient.getProduct(productId);
-      setProduct(response);
-      
-      // Convert specifications object to array for form
-      const specificationsArray = Object.entries(response.specifications || {}).map(([key, value]) => ({
-        key,
-        value
-      }));
-      
-      setFormData({
-        name: response.name,
-        description: response.description,
-        category: response.category,
-        brand: response.brand,
-        model: response.model,
-        warrantyDurationMonths: response.warrantyDurationMonths,
-        imageUrl: response.imageUrl || '',
-        specifications: specificationsArray.length > 0 ? specificationsArray : [{ key: '', value: '' }],
-      });
-    } catch (error) {
-      console.error('Failed to fetch product:', error);
-      alert('Failed to load product details.');
-      router.push('/admin/products');
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.getProduct(productId);
+        setProduct(response);
+
+        const specificationsArray = Object.entries(response.specifications || {}).map(([key, value]) => ({
+          key,
+          value
+        }));
+
+        setFormData({
+          name: response.name,
+          description: response.description,
+          category: response.category,
+          brand: response.brand,
+          model: response.model,
+          warrantyDurationMonths: response.warrantyDurationMonths,
+          imageUrl: response.imageUrl || '',
+          specifications: specificationsArray.length > 0 ? specificationsArray : [{ key: '', value: '' }],
+        });
+      } catch (error) {
+        console.error('Failed to fetch product:', error);
+        alert('Failed to load product details.');
+        router.push('/admin/products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [mounted, user, productId, router]);
+
+
+
 
   if (!mounted || !user || loading) {
     return (
@@ -114,7 +116,7 @@ export default function EditProductPage() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">
-              The product you're trying to edit doesn't exist or has been removed.
+              The product you&#39;re trying to edit doesn&#39;t exist or has been removed.
             </p>
             <Link href="/admin/products">
               <Button>
