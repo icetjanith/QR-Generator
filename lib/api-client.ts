@@ -54,6 +54,23 @@ class ApiClient {
     });
   }
 
+  async getProduct(productId: string) {
+    return this.request(`/products/${productId}`);
+  }
+
+  async updateProduct(productId: string, updateData: any) {
+    return this.request(`/products/${productId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    });
+  }
+
+  async deleteProduct(productId: string) {
+    return this.request(`/products/${productId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Batches
   async getBatches(params?: { search?: string; status?: string; page?: number; limit?: number }) {
     const searchParams = new URLSearchParams();

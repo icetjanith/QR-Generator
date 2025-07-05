@@ -17,6 +17,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>(mockProducts);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
@@ -41,6 +42,26 @@ export default function ProductsPage() {
   }, [user, router, mounted]);
 
   useEffect(() => {
+    if (!mounted || !user) return;
+    
+    fetchProducts();
+  }, [mounted, user]);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.getProducts();
+      setProducts(response.products || []);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+      // Fallback to mock data if API fails
+      setProducts(mockProducts);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     const filtered = products.filter(product =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -49,7 +70,7 @@ export default function ProductsPage() {
     setFilteredProducts(filtered);
   }, [searchTerm, products]);
 
-  if (!mounted || !user) {
+  if (!mounted || !user || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -68,12 +89,14 @@ export default function ProductsPage() {
                 Manage your product catalog and specifications
               </p>
             </div>
-            <Link href="/admin/products/create">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
-            </Link>
+            <div className="flex space-x-3">
+              <Link href="/admin/products/create">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <div className="relative mb-6">

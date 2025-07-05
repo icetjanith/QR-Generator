@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
     const transformedProducts = products.map(product => ({
       ...product.toObject(),
       model: product.productModel,
+      id: product._id.toString(),
     }));
 
     const total = await Product.countDocuments(query);
@@ -74,6 +75,13 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const productData = await request.json();
+    
+    // Transform model back to productModel for database storage
+    if (productData.model) {
+      productData.productModel = productData.model;
+      delete productData.model;
+    }
+    
     const product = new Product({
       ...productData,
       createdBy: user.id,
@@ -81,9 +89,25 @@ export async function POST(request: NextRequest) {
 
     await product.save();
 
-    return NextResponse.json(product, { status: 201 });
+    // Transform response to include model field for frontend compatibility
+    const responseProduct = {
+      ...product.toObject(),
+      id: product._id.toString(),
+      model: product.productModel,
+    };
+
+    return NextResponse.json(responseProduct, { status: 201 });
   } catch (error) {
     console.error('Product creation error:', error);
+    
+    // Handle specific MongoDB errors
+    if (error.code === 11000) {
+      return NextResponse.json(
+        { error: 'A product with this name already exists' },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to create product' },
       { status: 500 }
