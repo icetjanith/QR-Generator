@@ -30,7 +30,7 @@ import Link from 'next/link';
 import QRCodePreview from '@/components/QRCodePreview';
 
 export default function QRCodesPage() {
-  const [user, setUser] = useState(getCurrentUser());
+  const [user, setUser] = useState<User | null>(null);
   const [batches, setBatches] = useState<ProductBatch[]>(mockBatches);
   const [products, setProducts] = useState<Product[]>(mockProducts);
   const [units, setUnits] = useState<ProductUnit[]>(mockUnits);
@@ -53,6 +53,10 @@ export default function QRCodesPage() {
   });
   const [generatingNewQR, setGeneratingNewQR] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setUser(getCurrentUser());
+  }, []);
 
   const getProductName = useCallback((productId: string) => {
     const product = products.find(p => p.id === productId);

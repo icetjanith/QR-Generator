@@ -13,11 +13,15 @@ import { Plus, Search, QrCode, Download, Eye, Package } from 'lucide-react';
 import Link from 'next/link';
 
 export default function BatchesPage() {
-  const [user, setUser] = useState(getCurrentUser());
+  const [user, setUser] = useState<User | null>(null);
   const [batches, setBatches] = useState<ProductBatch[]>(mockBatches);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBatches, setFilteredBatches] = useState<ProductBatch[]>(batches);
   const router = useRouter();
+
+  useEffect(() => {
+    setUser(getCurrentUser());
+  }, []);
 
   useEffect(() => {
     if (!user) {

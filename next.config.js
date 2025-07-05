@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // REMOVE this line:
-  // output: 'export',
   reactStrictMode: true,
+  images: {
+    domains: ['images.pexels.com'],
+  },
 };
 
 module.exports = nextConfig;
-

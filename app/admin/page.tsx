@@ -21,9 +21,13 @@ import {
 import Link from 'next/link';
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState(getCurrentUser());
+  const [user, setUser] = useState<User | null>(null);
   const [analytics, setAnalytics] = useState<Analytics>(mockAnalytics);
   const router = useRouter();
+
+  useEffect(() => {
+    setUser(getCurrentUser());
+  }, []);
 
   useEffect(() => {
     if (!user) {

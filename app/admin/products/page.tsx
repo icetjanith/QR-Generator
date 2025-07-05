@@ -13,11 +13,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 export default function ProductsPage() {
-  const [user, setUser] = useState(getCurrentUser());
+  const [user, setUser] = useState<User | null>(null);
   const [products, setProducts] = useState<Product[]>(mockProducts);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const router = useRouter();
+
+  useEffect(() => {
+    setUser(getCurrentUser());
+  }, []);
 
   useEffect(() => {
     if (!user) {

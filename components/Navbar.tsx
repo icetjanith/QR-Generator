@@ -10,8 +10,12 @@ import { Menu, X, Shield, LogOut, Settings, Home } from 'lucide-react';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(getCurrentUser());
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    setUser(getCurrentUser());
+  }, []);
 
   const handleLogout = () => {
     logout();
