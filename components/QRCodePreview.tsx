@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ProductUnit } from '@/types';
-import { generateSingleQRCode } from '@/lib/qr-generator';
+import { generateQRCodeUrl } from '@/lib/qr-generator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Printer, Copy, Check } from 'lucide-react';
@@ -14,23 +14,14 @@ interface QRCodePreviewProps {
 }
 
 export default function QRCodePreview({ unit, productName, onClose }: QRCodePreviewProps) {
-  const [qrDataURL, setQrDataURL] = useState<string>('');
+  const [qrImageUrl, setQrImageUrl] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const generateQR = async () => {
-      try {
-        const dataURL = await generateSingleQRCode(unit);
-        setQrDataURL(dataURL);
-      } catch (error) {
-        console.error('Error generating QR code:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    generateQR();
+    const qrUrl = generateQRCodeUrl(unit.qrToken);
+    setQrImageUrl(qrUrl);
+    setLoading(false);
   }, [unit]);
 
   const handleCopySerial = async () => {
@@ -44,17 +35,37 @@ export default function QRCodePreview({ unit, productName, onClose }: QRCodePrev
   };
 
   const handleDownloadQR = () => {
-    if (!qrDataURL) return;
+    if (!qrImageUrl) return;
     
-    const link = document.createElement('a');
-    link.download = `QR_${unit.serialKey}.png`;
-    link.href = qrDataURL;
-    link.click();
+    // Create a canvas to convert the QR code image to downloadable format
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx?.drawImage(img, 0, 0);
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = `QR_${unit.serialKey}.png`;
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+    
+    img.src = qrImageUrl;
   };
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
-    if (printWindow && qrDataURL) {
+    if (printWindow && qrImageUrl) {
       printWindow.document.write(`
         <html>
           <head>
@@ -93,7 +104,7 @@ export default function QRCodePreview({ unit, productName, onClose }: QRCodePrev
           <body>
             <div class="qr-container">
               <div class="qr-code">
-                <img src="${qrDataURL}" alt="QR Code" />
+                <img src="${qrImageUrl}" alt="QR Code" />
               </div>
               <div class="serial">${unit.serialKey}</div>
               ${productName ? `<div class="product">${productName}</div>` : ''}
@@ -122,11 +133,11 @@ export default function QRCodePreview({ unit, productName, onClose }: QRCodePrev
           <div className="flex items-center justify-center h-40">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
-        ) : qrDataURL ? (
+        ) : qrImageUrl ? (
           <>
             <div className="flex justify-center">
               <img 
-                src={qrDataURL} 
+                src={qrImageUrl} 
                 alt="QR Code" 
                 className="border border-gray-300 rounded-lg p-2"
               />
@@ -186,7 +197,7 @@ export default function QRCodePreview({ unit, productName, onClose }: QRCodePrev
             Close
           </Button>
         )}
-      </CardContent>
+      </div>
     </Card>
   );
 }

@@ -28,7 +28,10 @@ export async function GET(
 
     return NextResponse.json({
       unit,
-      product,
+      product: {
+        ...product.toObject(),
+        model: product.productModel,
+      },
     });
   } catch (error) {
     console.error('Unit fetch error:', error);

@@ -35,7 +35,10 @@ export async function GET(request: NextRequest) {
         const product = await Product.findById(batch.productId);
         return {
           ...batch.toObject(),
-          product,
+          product: product ? {
+            ...product.toObject(),
+            model: product.productModel,
+          } : null,
         };
       })
     );

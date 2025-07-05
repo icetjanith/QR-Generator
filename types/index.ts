@@ -14,7 +14,7 @@ export interface Product {
   description: string;
   category: string;
   brand: string;
-  model: string;
+  model: string; // Keep this for frontend compatibility
   warrantyDurationMonths: number;
   imageUrl?: string;
   specifications: Record<string, string>;

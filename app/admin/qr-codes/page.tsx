@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { getCurrentUser, hasRole } from '@/lib/auth';
 import { mockBatches, mockProducts, mockUnits } from '@/lib/mock-data';
 import { ProductBatch, Product, ProductUnit } from '@/types';
-import { generateProductUnits, generatePrintablePDF, layoutStickersForA4, generateSingleQRCode } from '@/lib/qr-generator';
+import { generateProductUnits, generatePrintablePDF, layoutStickersForA4 } from '@/lib/qr-generator';
 import { formatDateToYYYYMMDD } from '@/lib/utils';
 import { 
   QrCode, 
@@ -130,7 +130,7 @@ export default function QRCodesPage() {
     setGeneratingQR(batch.id);
     
     try {
-      const newUnits = await generateProductUnits(batch.productId, batch.id, batch.quantity);
+      const newUnits = generateProductUnits(batch.productId, batch.id, batch.quantity);
       setUnits(prev => [...prev, ...newUnits]);
       
       // Update batch status
@@ -155,7 +155,18 @@ export default function QRCodesPage() {
     }
     
     try {
-      await generatePrintablePDF(batchUnits, batch.batchNumber);
+      const pdfUrl = generatePrintablePDF(batchUnits, batch.batchNumber);
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `QR_Codes_${batch.batchNumber}.pdf`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert(`PDF download initiated for batch ${batch.batchNumber}`);
     } catch (error) {
       console.error('PDF generation error:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -210,7 +221,7 @@ export default function QRCodesPage() {
       };
       
       // Generate single QR code unit
-      const newUnits = await generateProductUnits(newProduct.id, newBatch.id, 1);
+      const newUnits = generateProductUnits(newProduct.id, newBatch.id, 1);
       
       // Update state
       setProducts(prev => [...prev, newProduct]);

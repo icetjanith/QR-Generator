@@ -16,7 +16,12 @@ export async function GET(request: NextRequest) {
     let query: any = { isActive: true };
 
     if (search) {
-      query.$text = { $search: search };
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { brand: { $regex: search, $options: 'i' } },
+        { productModel: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } }
+      ];
     }
 
     if (category) {
@@ -28,10 +33,16 @@ export async function GET(request: NextRequest) {
       .skip((page - 1) * limit)
       .limit(limit);
 
+    // Transform productModel back to model for frontend compatibility
+    const transformedProducts = products.map(product => ({
+      ...product.toObject(),
+      model: product.productModel,
+    }));
+
     const total = await Product.countDocuments(query);
 
     return NextResponse.json({
-      products,
+      products: transformedProducts,
       pagination: {
         page,
         limit,

@@ -5,7 +5,7 @@ export interface IProduct extends Document {
   description: string;
   category: string;
   brand: string;
-  model: string;
+  productModel: string; // Changed from 'model' to 'productModel' to avoid conflict
   warrantyDurationMonths: number;
   imageUrl?: string;
   specifications: Record<string, string>;
@@ -35,7 +35,7 @@ const ProductSchema = new Schema<IProduct>({
     required: true,
     trim: true,
   },
-  model: {
+  productModel: { // Changed from 'model' to 'productModel'
     type: String,
     required: true,
     trim: true,
@@ -68,7 +68,7 @@ const ProductSchema = new Schema<IProduct>({
 });
 
 // Indexes for better query performance
-ProductSchema.index({ name: 'text', brand: 'text', model: 'text' });
+ProductSchema.index({ name: 'text', brand: 'text', productModel: 'text' });
 ProductSchema.index({ category: 1 });
 ProductSchema.index({ brand: 1 });
 ProductSchema.index({ isActive: 1 });

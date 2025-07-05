@@ -55,7 +55,7 @@ async function seedDatabase() {
         description: 'Advanced fitness tracking smartwatch with heart rate monitoring',
         category: 'Wearables',
         brand: 'TechCorp',
-        model: 'TWX-2024',
+        productModel: 'TWX-2024',
         warrantyDurationMonths: 24,
         imageUrl: 'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=300',
         specifications: {
@@ -71,7 +71,7 @@ async function seedDatabase() {
         description: 'Premium noise-cancelling wireless headphones',
         category: 'Audio',
         brand: 'SoundMax',
-        model: 'WH-Elite-2024',
+        productModel: 'WH-Elite-2024',
         warrantyDurationMonths: 12,
         imageUrl: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=300',
         specifications: {
