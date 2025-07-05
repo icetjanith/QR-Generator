@@ -27,11 +27,11 @@ export function generateQRCodeUrl(token: string): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://warranty.com/product/${token}`)}`;
 }
 
-export async function generateProductUnits(
+export function generateProductUnits(
     productId: string,
     batchId: string,
     quantity: number
-): Promise<ProductUnit[]> {
+): ProductUnit[] {
   const units: ProductUnit[] = [];
 
   for (let i = 0; i < quantity; i++) {

@@ -143,7 +143,7 @@ export default function QRCodesPage() {
     setGeneratingQR(batch.id);
     
     try {
-      const newUnits = generateProductUnits(batch.productId, batch.id, batch.quantity);
+      const newUnits = await generateProductUnits(batch.productId, batch.id, batch.quantity);
       setUnits(prev => [...prev, ...newUnits]);
       
       // Update batch status
@@ -234,7 +234,7 @@ export default function QRCodesPage() {
       };
       
       // Generate single QR code unit
-      const newUnits = generateProductUnits(newProduct.id, newBatch.id, 1);
+      const newUnits = await generateProductUnits(newProduct.id, newBatch.id, 1);
       
       // Update state
       setProducts(prev => [...prev, newProduct]);
